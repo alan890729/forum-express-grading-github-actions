@@ -1,0 +1,21 @@
+<div class="form-row mb-3">
+  <label class="form-label" for="name">Name</label>
+  <input class="form-control" type="text" name="name" value="{{restaurant.name}}" id="name" placeholder="Enter name" required>
+</div>
+<div class="form-row mb-3">
+  <label class="form-label" for="tel">Tel</label>
+  <input class="form-control" type="text" name="tel" value="{{restaurant.tel}}" id="tel" placeholder="Enter tel">
+</div>
+<div class="form-row mb-3">
+  <label class="form-label" for="address">Address</label>
+  <input class="form-control" type="text" name="address" value="{{restaurant.address}}" id="address" placeholder="Enter address">
+</div>
+<div class="form-row mb-3">
+  <label class="form-label" for="openingHours">Opening Hours</label>
+  <input class="form-control" type="time" name="openingHours" value="{{restaurant.openingHours}}" id="openingHours" placeholder="Enter opening hours">
+</div>
+<div class="form-row mb-3">
+  <label class="form-label" for="description">Description</label>
+  <textarea class="form-control" id="description" name="description" rows="3">{{restaurant.description}}</textarea>
+</div>
+<button type="submit" class="btn btn-primary">Submit</button>
