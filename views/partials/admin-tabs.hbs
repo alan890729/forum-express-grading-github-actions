@@ -1,6 +1,6 @@
 <h1>餐廳後台</h1>
-<nav class="nav mb-3">
-  <a class="nav-link active" href="/admin/restaurants">Restaurants</a>
-  <div class="py-2 px-1">|</div>
-  <a class="nav-link" href="/admin/users">Users</a>
+<nav class="nav nav-tabs mb-3">
+  <a class="nav-link {{#ifCond route 'restaurants'}} active {{/ifCond}}" href="/admin/restaurants">Restaurants</a>
+  <a class="nav-link {{#ifCond route 'users'}} active {{/ifCond}}" href="/admin/users">Users</a>
+  <a class="nav-link {{#ifCond route 'categories'}} active {{/ifCond}}" href="/admin/categories">Categories</a>
 </nav>
