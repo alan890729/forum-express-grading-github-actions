@@ -39,7 +39,7 @@
           <a href="/admin/categories/{{this.id}}" class="btn btn-link link-primary text-decoration-none">Edit</a>
         </button>
         <form action="/admin/categories/{{this.id}}?_method=DELETE" method="post" class="d-inline">
-          <button type="submit" class="btn link-danger">Delete</button>
+          <button type="submit" class="btn link-danger" onclick="return confirm(`確定要刪除 {{this.name}} 這個類別嗎`)">Delete</button>
         </form>
       </td>
     </tr>
