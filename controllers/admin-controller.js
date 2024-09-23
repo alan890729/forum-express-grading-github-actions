@@ -94,7 +94,7 @@ const adminController = {
           openingHours,
           description,
           image: filePath || restaurant.image,
-          categoryId
+          categoryId: categoryId || null
         })
       })
       .then(() => {
