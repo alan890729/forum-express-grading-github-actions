@@ -12,7 +12,7 @@ module.exports = {
 
     await queryInterface.bulkInsert(
       'Restaurants',
-      Array.from({ length: 50 }, () => (
+      Array.from({ length: 500 }, () => (
         {
           name: faker.name.findName(),
           tel: faker.phone.phoneNumber(),

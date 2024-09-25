@@ -1,8 +1,14 @@
 const { Op } = require('sequelize')
 const { Restaurant, Category } = require('../models')
+const pagination = require('../helpers/pagination-helper')
 
 const restaurantController = {
   getRestaurants: (req, res, next) => {
+    const DEFAULT_LIMIT = 9
+
+    const currentPage = +req.query.page || 1
+    const limit = +req.query.limit || DEFAULT_LIMIT
+    const offset = limit * (currentPage - 1)
     let categoryId
     let where
 
@@ -22,13 +28,15 @@ const restaurantController = {
     }
 
     return Promise.all([
-      Restaurant.findAll({
+      Restaurant.findAndCountAll({
         where,
         include: [
           {
             model: Category
           }
         ],
+        limit,
+        offset,
         raw: true,
         nest: true
       }),
@@ -37,10 +45,12 @@ const restaurantController = {
       })
     ])
       .then(([restaurants, categories]) => {
-        const data = restaurants.map(r => ({
+        const data = restaurants.rows.map(r => ({
           ...r,
           description: r.description.substring(0, 50)
         }))
+
+        pagination.generatePaginatorForRender(res, restaurants.count, currentPage, limit)
 
         return res.render('restaurants', { restaurants: data, categories, categoryId })
       })
