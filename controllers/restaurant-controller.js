@@ -1,5 +1,5 @@
 const { Op } = require('sequelize')
-const { Restaurant, Category, Comment, User } = require('../models')
+const { Restaurant, Category, Comment, User, Sequelize } = require('../models')
 const pagination = require('../helpers/pagination-helper')
 
 const restaurantController = {
@@ -81,7 +81,13 @@ const restaurantController = {
   getDashboard: (req, res, next) => {
     return Restaurant.findByPk(req.params.id, {
       include: [
-        { model: Category }
+        { model: Category },
+        {
+          model: Comment,
+          attributes: [
+            [Sequelize.fn('count', Sequelize.col('text')), 'amountOfComment']
+          ]
+        }
       ],
       raw: true,
       nest: true
