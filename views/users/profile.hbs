@@ -1,0 +1,41 @@
+<div class="card mb-3">
+  <div class="row g-0">
+    <div class="col-sm-4 d-sm-block d-flex justify-content-center">
+      {{#if user.image}}
+      <div class="rounded-circle overflow-hidden">
+        <img src="{{user.image}}" class="d-block img-fluid w-100" style="object-fit: cover; aspect-ratio: 1 / 1;">
+      </div>
+      {{/if}}
+    </div>
+    <div class="col-sm-8">
+      <div class="card-body">
+        <h5 class="card-title">{{user.name}}</h5>
+        <p class="card-text">{{user.email}}</p>
+        <a href="/users/{{user.id}}/edit" class="btn btn-primary">Edit</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-header">
+    <span class="fw-bold">{{commentCount}}</span>
+    <span> 已評論餐廳</span>
+  </div>
+  <div class="card-body">
+    {{#if commentCount}}
+    <div class="row">
+      {{#each user.Comments}}
+      <div class="col-4 col-md-3 col-lg-2 col-xl-1 mb-xl-0 mb-4">
+        <a href="/restaurants/{{Restaurant.id}}" class="d-block overflow-hidden w-100">
+          <img src="{{Restaurant.image}}" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
+        </a>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <div class="text-center">
+      <h5 class="text-muted m-0">No Comments yet.</h5>
+    </div>
+    {{/if}}
+  </div>
+</div>
