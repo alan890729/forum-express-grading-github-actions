@@ -1,0 +1,18 @@
+<div class="card mb-3">
+  <div class="row g-0">
+    <div class="col-sm-4 d-sm-block d-flex justify-content-center">
+      {{#if user.image}}
+      <div class="rounded-circle overflow-hidden">
+        <img src="{{user.image}}" class="d-block img-fluid w-100" style="object-fit: cover; aspect-ratio: 1 / 1;">
+      </div>
+      {{/if}}
+    </div>
+    <div class="col-sm-8">
+      <div class="card-body">
+        <h5 class="card-title">{{user.name}}</h5>
+        <p class="card-text">{{user.email}}</p>
+        <a href="/users/{{user.id}}/edit" class="btn btn-primary">Edit</a>
+      </div>
+    </div>
+  </div>
+</div>
