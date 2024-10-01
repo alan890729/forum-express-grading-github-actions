@@ -31,28 +31,27 @@ const restaurantController = {
       Restaurant.findAndCountAll({
         where,
         include: [
-          {
-            model: Category
-          }
+          { model: Category }
         ],
         limit,
-        offset,
-        raw: true,
-        nest: true
+        offset
       }),
-      Category.findAll({
-        raw: true
-      })
+      Category.findAll({ raw: true })
     ])
-      .then(([restaurants, categories]) => {
-        const data = restaurants.rows.map(r => ({
-          ...r,
-          description: r.description.substring(0, 50)
-        }))
+      .then(([restaurantsData, categories]) => {
+        const favoritedRestaurantsId = req.user && req.user.favoritedRestaurants.map(r => r.id) // I think using 'req.user &&...' is for testing purpose.
 
-        pagination.generatePaginatorForRender(res, restaurants.count, currentPage, limit)
+        const restaurants = restaurantsData.rows
+          .map(r => r.toJSON())
+          .map(r => ({
+            ...r,
+            description: r.description.substring(0, 50),
+            isFavorited: favoritedRestaurantsId.includes(r.id)
+          }))
 
-        return res.render('restaurants', { restaurants: data, categories, categoryId })
+        pagination.generatePaginatorForRender(res, restaurantsData.count, currentPage, limit)
+
+        return res.render('restaurants', { restaurants, categories, categoryId })
       })
       .catch(err => next(err))
   },
@@ -65,16 +64,18 @@ const restaurantController = {
           include: [
             { model: User }
           ]
-        }
+        },
+        { model: User, as: 'favoritedUsers' }
       ]
     })
       .then(restaurant => {
         if (!restaurant) throw new Error('Restaurant didn\'t exist!')
-
         return restaurant.increment('viewCounts')
-          .then(() => {
-            return res.render('restaurant', { restaurant: restaurant.toJSON() })
-          })
+      })
+      .then(restaurantData => {
+        const restaurant = restaurantData.toJSON()
+        restaurant.isFavorited = restaurant.favoritedUsers.some(u => u.id === req.user.id)
+        return res.render('restaurant', { restaurant })
       })
       .catch(err => next(err))
   },

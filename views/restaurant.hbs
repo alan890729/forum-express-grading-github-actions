@@ -13,11 +13,20 @@
   </div>
   <div class="col-md-8">
     <p style="white-space: break-spaces;">{{restaurant.description}}</p>
-  </div>
-  <div class="col-md-12 mb-3">
-    <a href="/restaurants/{{restaurant.id}}/dashboard">
-      <button type="button" class="btn btn-primary">dashboard</button>
-    </a>
+    <div class="mb-3 d-flex">
+      <a href="/restaurants/{{restaurant.id}}/dashboard">
+        <button type="button" class="btn btn-primary me-2">dashboard</button>
+      </a>
+      {{#if restaurant.isFavorited}}
+      <form action="/favorites/{{restaurant.id}}?_method=DELETE" method="post">
+        <button type="submit" class="btn btn-danger">移除最愛</button>
+      </form>
+      {{else}}
+      <form action="/favorites/{{restaurant.id}}" method="post">
+        <button type="submit" class="btn btn-primary">加到最愛</button>
+      </form>
+      {{/if}}
+    </div>
   </div>
   <hr>
 </div>
