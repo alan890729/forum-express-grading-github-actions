@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs')
 const db = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 
-const { User, Comment, Restaurant, Favorite } = db
+const { User, Comment, Restaurant, Favorite, Like } = db
 
 const userController = {
   signUpPage: (req, res) => {
@@ -155,6 +155,52 @@ const userController = {
       })
       .then(() => {
         req.flash('success_messages', '已將餐廳從您的喜愛清單移除！')
+        return res.redirect('back')
+      })
+      .catch(err => next(err))
+  },
+  addLike: (req, res, next) => {
+    const { restaurantId } = req.params
+
+    return Promise.all([
+      Restaurant.findByPk(restaurantId),
+      Like.findOne({
+        where: {
+          userId: req.user.id,
+          restaurantId
+        }
+      })
+    ])
+      .then(([restaurant, like]) => {
+        if (!restaurant) throw new Error('Restaurant didn\'t exist!')
+        if (like) throw new Error('You have liked this restaurant!')
+
+        return Like.create({
+          userId: req.user.id,
+          restaurantId
+        })
+      })
+      .then(() => {
+        req.flash('success_messages', '已將餐廳加到您的Like!')
+        return res.redirect('back')
+      })
+      .catch(err => next(err))
+  },
+  removeLike: (req, res, next) => {
+    const { restaurantId } = req.params
+
+    return Like.findOne({
+      where: {
+        userId: req.user.id,
+        restaurantId
+      }
+    })
+      .then(like => {
+        if (!like) throw new Error('You haven\'t liked this restaurant!')
+        return like.destroy()
+      })
+      .then(() => {
+        req.flash('success_messages', '已將餐廳從您的Like移除!')
         return res.redirect('back')
       })
       .catch(err => next(err))
