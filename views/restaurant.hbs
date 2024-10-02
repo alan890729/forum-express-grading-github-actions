@@ -15,15 +15,24 @@
     <p style="white-space: break-spaces;">{{restaurant.description}}</p>
     <div class="mb-3 d-flex">
       <a href="/restaurants/{{restaurant.id}}/dashboard">
-        <button type="button" class="btn btn-primary me-2">dashboard</button>
+        <button type="button" class="btn btn-primary me-1">dashboard</button>
       </a>
       {{#if restaurant.isFavorited}}
       <form action="/favorites/{{restaurant.id}}?_method=DELETE" method="post">
-        <button type="submit" class="btn btn-danger">移除最愛</button>
+        <button type="submit" class="btn btn-danger me-1">移除最愛</button>
       </form>
       {{else}}
       <form action="/favorites/{{restaurant.id}}" method="post">
-        <button type="submit" class="btn btn-primary">加到最愛</button>
+        <button type="submit" class="btn btn-primary me-1">加到最愛</button>
+      </form>
+      {{/if}}
+      {{#if restaurant.isLiked}}
+      <form action="/like/{{restaurant.id}}?_method=DELETE" method="post">
+        <button type="submit" class="btn btn-danger me-1">Unlike</button>
+      </form>
+      {{else}}
+      <form action="/like/{{restaurant.id}}" method="post">
+        <button type="submit" class="btn btn-primary me-1">Like</button>
       </form>
       {{/if}}
     </div>

@@ -40,13 +40,15 @@ const restaurantController = {
     ])
       .then(([restaurantsData, categories]) => {
         const favoritedRestaurantsId = req.user && req.user.favoritedRestaurants.map(r => r.id) // I think using 'req.user &&...' is for testing purpose.
+        const likedRestaurantsId = req.user && req.user.likedRestaurants.map(r => r.id)
 
         const restaurants = restaurantsData.rows
           .map(r => r.toJSON())
           .map(r => ({
             ...r,
             description: r.description.substring(0, 50),
-            isFavorited: favoritedRestaurantsId.includes(r.id)
+            isFavorited: favoritedRestaurantsId.includes(r.id),
+            isLiked: likedRestaurantsId.includes(r.id)
           }))
 
         pagination.generatePaginatorForRender(res, restaurantsData.count, currentPage, limit)
@@ -65,7 +67,8 @@ const restaurantController = {
             { model: User }
           ]
         },
-        { model: User, as: 'favoritedUsers' }
+        { model: User, as: 'favoritedUsers' },
+        { model: User, as: 'likedUsers' }
       ]
     })
       .then(restaurant => {
@@ -75,6 +78,7 @@ const restaurantController = {
       .then(restaurantData => {
         const restaurant = restaurantData.toJSON()
         restaurant.isFavorited = restaurant.favoritedUsers.some(u => u.id === req.user.id)
+        restaurant.isLiked = restaurant.likedUsers.some(u => u.id === req.user.id)
         return res.render('restaurant', { restaurant })
       })
       .catch(err => next(err))
