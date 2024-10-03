@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs')
 const db = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 
-const { User, Comment, Restaurant, Favorite, Like } = db
+const { User, Comment, Restaurant, Favorite, Like, Followship } = db
 
 const userController = {
   signUpPage: (req, res) => {
@@ -212,12 +212,58 @@ const userController = {
       ]
     })
       .then(users => {
-        users = users.map(user => ({
-          ...user.toJSON(),
-          followerCount: user.followers.length,
-          isFollowed: req.user && req.user.followings.some(f => f.id === user.id)
-        }))
+        users = users
+          .map(user => ({
+            ...user.toJSON(),
+            followerCount: user.followers.length,
+            isFollowed: req.user && req.user.followings.some(f => f.id === user.id)
+          }))
+          .sort((a, b) => b.followerCount - a.followerCount)
         return res.render('top-users', { users })
+      })
+      .catch(err => next(err))
+  },
+  addFollowing: (req, res, next) => {
+    const { userId } = req.params
+
+    return Promise.all([
+      User.findByPk(userId),
+      Followship.findOne({
+        where: {
+          followerId: req.user.id,
+          followingId: userId
+        }
+      })
+    ])
+      .then(([user, followship]) => {
+        if (!user) throw new Error('User didn\'t exist!')
+        if (followship) throw new Error('You are already following this user!')
+
+        return Followship.create({
+          followerId: req.user.id,
+          followingId: userId
+        })
+      })
+      .then(() => {
+        req.flash('success_messages', '成功追蹤該使用者!')
+        return res.redirect('back')
+      })
+      .catch(err => next(err))
+  },
+  removeFollowing: (req, res, next) => {
+    return Followship.findOne({
+      where: {
+        followerId: req.user.id,
+        followingId: req.params.userId
+      }
+    })
+      .then(followship => {
+        if (!followship) throw new Error('You haven\'t followed this user!')
+        return followship.destroy()
+      })
+      .then(() => {
+        req.flash('success_messages', '成功取消追蹤該使用者!')
+        return res.redirect('back')
       })
       .catch(err => next(err))
   }
