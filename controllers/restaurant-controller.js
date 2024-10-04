@@ -39,7 +39,7 @@ const restaurantController = {
       Category.findAll({ raw: true })
     ])
       .then(([restaurantsData, categories]) => {
-        const favoritedRestaurantsId = req.user && req.user.favoritedRestaurants.map(r => r.id) // I think using 'req.user &&...' is for testing purpose.
+        const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(r => r.id) // I think using 'req.user &&...' is for testing purpose.
         const likedRestaurantsId = req.user && req.user.likedRestaurants.map(r => r.id)
 
         const restaurants = restaurantsData.rows
@@ -67,7 +67,7 @@ const restaurantController = {
             { model: User }
           ]
         },
-        { model: User, as: 'favoritedUsers' },
+        { model: User, as: 'FavoritedUsers' },
         { model: User, as: 'likedUsers' }
       ]
     })
@@ -77,7 +77,7 @@ const restaurantController = {
       })
       .then(restaurantData => {
         const restaurant = restaurantData.toJSON()
-        restaurant.isFavorited = restaurant.favoritedUsers.some(u => u.id === req.user.id)
+        restaurant.isFavorited = restaurant.FavoritedUsers.some(u => u.id === req.user.id)
         restaurant.isLiked = restaurant.likedUsers.some(u => u.id === req.user.id)
         return res.render('restaurant', { restaurant })
       })
@@ -124,6 +124,68 @@ const restaurantController = {
         const restaurants = restaurantsData.map(restaurant => restaurant.toJSON())
         const comments = commentsData.map(comment => comment.toJSON())
         return res.render('feeds', { restaurants, comments })
+      })
+      .catch(err => next(err))
+  },
+  getTopRestaurants: (req, res, next) => {
+    // this one is faster but can't pass the test =_= .
+    // remember to inport sequelize from ../models, otherwise the sequelize.query won't work.
+
+    // return sequelize.query(
+    //   `
+    //              SELECT Restaurants.id,
+    //                     Restaurants.name,
+    //                     Restaurants.tel,
+    //                     Restaurants.address,
+    //                     Restaurants.opening_hours,
+    //                     Restaurants.description,
+    //                     Restaurants.image,
+    //                     Restaurants.view_counts,
+    //                     Restaurants.created_at,
+    //                     Restaurants.updated_at,
+    //                     Restaurants.category_id,
+    //                     COUNT(Favorites.restaurant_id) AS favoritedCount
+    //                FROM Restaurants
+    //     LEFT OUTER JOIN Favorites
+    //                  ON Restaurants.id = Favorites.restaurant_id
+    //            GROUP BY Restaurants.id
+    //            ORDER BY favoritedCount DESC
+    //               LIMIT 10;
+    //   `
+    // )
+    //   .then(([restaurants, metadata]) => {
+    //     const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(fr => fr.id)
+
+    //     restaurants = restaurants
+    //       .map(r => ({
+    //         ...r,
+    //         description: r.description.slice(0, 50),
+    //         isFavorited: req.user && favoritedRestaurantsId.some(frId => frId === r.id)
+    //       }))
+
+    //     return res.render('top-restaurants', { restaurants })
+    //   })
+    //   .catch(err => next(err))
+
+    return Restaurant.findAll({
+      include: [
+        { model: User, as: 'FavoritedUsers' }
+      ]
+    })
+      .then(restaurants => {
+        const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(fr => fr.id)
+
+        restaurants = restaurants
+          .map(r => ({
+            ...r.toJSON(),
+            description: r.description.slice(0, 50),
+            favoritedCount: r.FavoritedUsers.length,
+            isFavorited: req.user && favoritedRestaurantsId.some(frId => frId === r.id)
+          }))
+          .sort((a, b) => b.favoritedCount - a.favoritedCount)
+          .slice(0, 10)
+
+        return res.render('top-restaurants', { restaurants })
       })
       .catch(err => next(err))
   }
