@@ -39,37 +39,85 @@ const userController = {
   },
   getUser: (req, res, next) => {
     const userId = +req.params.id
-    // 寫這段是為了阻擋某使用者查看其他使用者的profile頁面，但是測試檔案沒辦法取得req.user，所以為了要過測試，我沒有辦法使用req.user.id和req.params.id去比對，判斷使用者到底是不是同一個。
-    // if (userId !== req.user.id) {
-    //   req.flash('error_messages', 'User didn\'t exist!')
-    //   return res.redirect('/restaurants')
-    // }
+    const currentUser = req.user
+    const isSameUser = currentUser.id === userId
 
-    return Promise.all([
-      User.findByPk(userId, {
-        include: [{
-          model: Comment,
-          include: [{ model: Restaurant }]
-        }]
-      }),
-      Comment.count({
-        where: { userId }
-      })
-    ])
-      .then(([user, commentCount]) => {
-        if (!user) throw new Error('User didn\'t exist!')
+    if (isSameUser) {
+      try {
+        const comments = []
+        currentUser.Comments.forEach(comment => {
+          if (!comments.some(c => c.restaurantId === comment.restaurantId)) {
+            comments.push(comment)
+          }
+        })
 
-        return res.render('users/profile', { user: user.toJSON(), commentCount })
+        const targetUser = {
+          ...currentUser,
+          Comments: comments,
+          commentsCount: comments.length,
+          followingsCount: currentUser.followings.length,
+          followersCount: currentUser.followers.length,
+          favoritedRestaurantsCount: currentUser.FavoritedRestaurants.length,
+          isSameUser
+        }
+
+        return res.render('users/profile', { targetUser })
+      } catch (err) {
+        return next(err)
+      }
+    } else {
+      return User.findByPk(userId, {
+        include: [
+          {
+            model: Comment,
+            include: [{ model: Restaurant }]
+          },
+          {
+            model: User,
+            as: 'followings'
+          },
+          {
+            model: User,
+            as: 'followers'
+          },
+          {
+            model: Restaurant,
+            as: 'FavoritedRestaurants'
+          }
+        ]
       })
-      .catch(err => next(err))
+        .then(userData => {
+          if (!userData) throw new Error('User didn\'t exist!')
+
+          const comments = []
+          userData.Comments.forEach(comment => {
+            if (!comments.some(c => c.restaurantId === comment.restaurantId)) {
+              comments.push(comment.toJSON())
+            }
+          })
+
+          const targetUser = {
+            ...userData.toJSON(),
+            Comments: comments,
+            commentsCount: comments.length,
+            followingsCount: userData.followings.length,
+            followersCount: userData.followers.length,
+            favoritedRestaurantsCount: userData.FavoritedRestaurants.length,
+            isSameUser,
+            isFollowingByCurrentUser: currentUser.followings.some(f => f.id === userId)
+          }
+          return res.render('users/profile', { targetUser })
+        })
+        .catch(err => next(err))
+    }
   },
   editUser: (req, res, next) => {
     const userId = +req.params.id
-    // 寫這段是為了阻擋某使用者查看其他使用者的profile編輯頁面，但是測試檔案沒辦法取得req.user，所以為了要過測試，我沒有辦法使用req.user.id和req.params.id去比對，判斷使用者到底是不是同一個。
-    // if (userId !== req.user.id) {
-    //   req.flash('error_messages', 'User didn\'t exist!')
-    //   return res.redirect(`/users/${req.user.id}`)
-    // }
+
+    if (req.user && userId !== req.user.id) {
+      req.flash('error_messages', 'User didn\'t exist!')
+      return res.redirect(`/users/${req.user.id}`)
+    }
 
     return User.findByPk(userId, {
       raw: true

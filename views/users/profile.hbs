@@ -1,41 +1,148 @@
 <div class="card mb-3">
   <div class="row g-0">
     <div class="col-sm-4 d-sm-block d-flex justify-content-center">
-      {{#if user.image}}
       <div class="rounded-circle overflow-hidden">
-        <img src="{{user.image}}" class="d-block img-fluid w-100" style="object-fit: cover; aspect-ratio: 1 / 1;">
+        {{#if targetUser.image}}
+        <img src="{{targetUser.image}}" class="d-block img-fluid w-100" style="object-fit: cover; aspect-ratio: 1 / 1;">
+        {{else}}
+        <img src="https://fakeimg.pl/140/" class="d-block img-fluid w-100" style="object-fit: cover; aspect-ratio: 1 / 1;">
+        {{/if}}
       </div>
-      {{/if}}
     </div>
     <div class="col-sm-8">
       <div class="card-body">
-        <h5 class="card-title">{{user.name}}</h5>
-        <p class="card-text">{{user.email}}</p>
-        <a href="/users/{{user.id}}/edit" class="btn btn-primary">Edit</a>
+        <h5 class="card-title">{{targetUser.name}}</h5>
+        <p class="card-text">{{targetUser.email}}</p>
+        {{#if targetUser.isSameUser}}
+        <a href="/users/{{targetUser.id}}/edit" class="btn btn-primary">Edit</a>
+        {{else}}
+          {{#if targetUser.isFollowingByCurrentUser}}
+          <form action="/following/{{targetUser.id}}?_method=DELETE" method="post" class="d-inline">
+            <button type="submit" class="btn btn-danger">取消追蹤</button>
+          </form>
+          {{else}}
+          <form action="/following/{{targetUser.id}}" method="post" class="d-inline">
+            <button type="submit" class="btn btn-primary">追蹤</button>
+          </form>
+          {{/if}}
+        {{/if}}
       </div>
     </div>
   </div>
 </div>
-<div class="card">
-  <div class="card-header">
-    <span class="fw-bold">{{commentCount}}</span>
-    <span> 已評論餐廳</span>
-  </div>
-  <div class="card-body">
-    {{#if commentCount}}
-    <div class="row">
-      {{#each user.Comments}}
-      <div class="col-4 col-md-3 col-lg-2 col-xl-1 mb-xl-0 mb-4">
-        <a href="/restaurants/{{Restaurant.id}}" class="d-block overflow-hidden w-100">
-          <img src="{{Restaurant.image}}" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
-        </a>
+
+<div class="row">
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header">
+        <span class="fw-bold">{{targetUser.followingsCount}}</span>
+        <span> followings（追蹤者）</span>
       </div>
-      {{/each}}
+      <div class="card-body">
+        {{#if targetUser.followingsCount}}
+        <div class="row">
+          {{#each targetUser.followings}}
+          <div class="col-4 col-md-3 col-lg-4 col-xl-2 my-2">
+            <a href="/users/{{this.id}}" class="d-block overflow-hidden w-100">
+              {{#if this.image}}
+              <img src="{{this.image}}" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
+              {{else}}
+              <img src="https://fakeimg.pl/140/" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
+              {{/if}}
+            </a>
+          </div>
+          {{/each}}
+        </div>
+        {{else}}
+        <div class="text-center">
+          <h5 class="text-muted m-0">No followings yet.</h5>
+        </div>
+        {{/if}}
+      </div>
     </div>
-    {{else}}
-    <div class="text-center">
-      <h5 class="text-muted m-0">No Comments yet.</h5>
+    <div class="card">
+      <div class="card-header">
+        <span class="fw-bold">{{targetUser.followersCount}}</span>
+        <span> followers（追隨者）</span>
+      </div>
+      <div class="card-body">
+        {{#if targetUser.followersCount}}
+        <div class="row">
+          {{#each targetUser.followers}}
+          <div class="col-4 col-md-3 col-lg-4 col-xl-2 my-2">
+            <a href="/users/{{this.id}}" class="d-block overflow-hidden w-100">
+              {{#if this.image}}
+              <img src="{{this.image}}" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
+              {{else}}
+              <img src="https://fakeimg.pl/140/" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
+              {{/if}}
+            </a>
+          </div>
+          {{/each}}
+        </div>
+        {{else}}
+        <div class="text-center">
+          <h5 class="text-muted m-0">No followers yet.</h5>
+        </div>
+        {{/if}}
+      </div>
     </div>
-    {{/if}}
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-header">
+        <span class="fw-bold">{{targetUser.commentsCount}}</span>
+        <span> 已評論餐廳</span>
+      </div>
+      <div class="card-body">
+        {{#if targetUser.commentsCount}}
+        <div class="row">
+          {{#each targetUser.Comments}}
+          <div class="col-4 col-md-3 col-lg-2 col-xl-1 my-2">
+            <a href="/restaurants/{{this.Restaurant.id}}" class="d-block overflow-hidden w-100">
+              {{#if this.Restaurant.image}}
+              <img src="{{this.Restaurant.image}}" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
+              {{else}}
+              <img src="https://fakeimg.pl/140/" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
+              {{/if}}
+            </a>
+          </div>
+          {{/each}}
+        </div>
+        {{else}}
+        <div class="text-center">
+          <h5 class="text-muted m-0">No Comments yet.</h5>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="fw-bold">{{targetUser.favoritedRestaurantsCount}}</span>
+        <span> 收藏的餐廳</span>
+      </div>
+      <div class="card-body">
+        {{#if targetUser.favoritedRestaurantsCount}}
+        <div class="row">
+          {{#each targetUser.FavoritedRestaurants}}
+          <div class="col-4 col-md-3 col-lg-2 col-xl-1 my-2">
+            <a href="/restaurants/{{this.id}}" class="d-block overflow-hidden w-100">
+              {{#if this.image}}
+              <img src="{{this.image}}" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
+              {{else}}
+              <img src="https://fakeimg.pl/140/" class="img-fluid" style="aspect-ratio: 1 / 1; object-fit: cover;">
+              {{/if}}
+            </a>
+          </div>
+          {{/each}}
+        </div>
+        {{else}}
+        <div class="text-center">
+          <h5 class="text-muted m-0">No fovorites restaurants yet.</h5>
+        </div>
+        {{/if}}
+      </div>
+    </div>
   </div>
 </div>
