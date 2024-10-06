@@ -13,6 +13,20 @@
       <div class="card-body">
         <h5 class="card-title">{{targetUser.name}}</h5>
         <p class="card-text">{{targetUser.email}}</p>
+        <p>
+          <span>
+            <span class="fw-bold">{{targetUser.commentsCount}}</span> 已評論餐廳
+          </span><br>
+          <span>
+            <span class="fw-bold">{{targetUser.favoritedRestaurantsCount}}</span> 收藏的餐廳
+          </span><br>
+          <span>
+            <span class="fw-bold">{{targetUser.followingsCount}}</span> followings（追蹤者）
+          </span><br>
+          <span>
+            <span class="fw-bold">{{targetUser.followersCount}}</span> followers（追隨者）
+          </span>
+        </p>
         {{#if targetUser.isSameUser}}
         <a href="/users/{{targetUser.id}}/edit" class="btn btn-primary">Edit</a>
         {{else}}
