@@ -45,9 +45,9 @@ const adminController = {
       })
     ])
       .then(([restaurants, categories]) => {
-        pagination.generatePaginatorForRender(res, restaurants.count, currentPage, limit)
+        const paginator = pagination.generatePaginatorForRender(restaurants.count, currentPage, limit)
 
-        return res.render('admin/restaurants', { restaurants: restaurants.rows, categories, categoryId })
+        return res.render('admin/restaurants', { restaurants: restaurants.rows, categories, categoryId, paginator })
       })
       .catch(err => next(err))
   },

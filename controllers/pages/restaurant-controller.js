@@ -51,9 +51,9 @@ const restaurantController = {
             isLiked: likedRestaurantsId.includes(r.id)
           }))
 
-        pagination.generatePaginatorForRender(res, restaurantsData.count, currentPage, limit)
+        const paginator = pagination.generatePaginatorForRender(restaurantsData.count, currentPage, limit)
 
-        return res.render('restaurants', { restaurants, categories, categoryId })
+        return res.render('restaurants', { restaurants, categories, categoryId, paginator })
       })
       .catch(err => next(err))
   },

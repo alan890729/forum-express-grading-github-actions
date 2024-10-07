@@ -108,7 +108,7 @@ module.exports = {
     return pageBtnArr
   },
 
-  generatePaginatorForRender (httpResponse, amountOfRecords, currentPage, limit = 10) {
+  generatePaginatorForRender (amountOfRecords, currentPage, limit = 10) {
     const totalPage = this.getTotalPage(amountOfRecords, limit)
 
     if (currentPage < 1) currentPage = 1
@@ -122,10 +122,13 @@ module.exports = {
         pageBtn.isActive = true
       }
     })
-    httpResponse.locals.prevPage = prevPage
-    httpResponse.locals.nextPage = nextPage
-    httpResponse.locals.pageBtnArr = pageBtnArr
-    httpResponse.locals.currentPage = currentPage
-    httpResponse.locals.totalPage = totalPage
+
+    return {
+      prevPage,
+      nextPage,
+      pageBtnArr,
+      currentPage,
+      totalPage
+    }
   }
 }
