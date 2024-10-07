@@ -1,7 +1,7 @@
 const { Op } = require('sequelize')
-const { Restaurant, User, Category } = require('../models')
-const { localFileHandler } = require('../helpers/file-helpers')
-const pagination = require('../helpers/pagination-helper')
+const { Restaurant, User, Category } = require('../../models')
+const { localFileHandler } = require('../../helpers/file-helpers')
+const pagination = require('../../helpers/pagination-helper')
 
 const adminController = {
   getRestaurants: (req, res, next) => {

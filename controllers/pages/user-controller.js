@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
-const db = require('../models')
-const { localFileHandler } = require('../helpers/file-helpers')
+const db = require('../../models')
+const { localFileHandler } = require('../../helpers/file-helpers')
 
 const { User, Comment, Restaurant, Favorite, Like, Followship } = db
 
