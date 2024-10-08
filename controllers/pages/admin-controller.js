@@ -1,55 +1,10 @@
-const { Op } = require('sequelize')
 const { Restaurant, User, Category } = require('../../models')
 const { localFileHandler } = require('../../helpers/file-helpers')
-const pagination = require('../../helpers/pagination-helper')
+const adminServices = require('../../services/admin-services')
 
 const adminController = {
   getRestaurants: (req, res, next) => {
-    const DEFAULT_LIMIT = 20
-    const limit = +req.query.limit || DEFAULT_LIMIT
-    const currentPage = +req.query.page || 1
-    const offset = (currentPage - 1) * limit
-
-    let categoryId
-    let where
-    if (+req.query.categoryId) {
-      categoryId = +req.query.categoryId
-      where = { categoryId }
-    } else if (req.query.categoryId === 'noCategory') {
-      categoryId = 'noCategory'
-      where = {
-        categoryId: {
-          [Op.is]: null
-        }
-      }
-    } else {
-      categoryId = ''
-      where = {}
-    }
-
-    return Promise.all([
-      Restaurant.findAndCountAll({
-        where,
-        include: [
-          {
-            model: Category
-          }
-        ],
-        limit,
-        offset,
-        raw: true,
-        nest: true
-      }),
-      Category.findAll({
-        raw: true
-      })
-    ])
-      .then(([restaurants, categories]) => {
-        const paginator = pagination.generatePaginatorForRender(restaurants.count, currentPage, limit)
-
-        return res.render('admin/restaurants', { restaurants: restaurants.rows, categories, categoryId, paginator })
-      })
-      .catch(err => next(err))
+    return adminServices.getRestaurants(req, (err, data) => err ? next(err) : res.render('admin/restaurants', data))
   },
   createRestaurant: (req, res, next) => {
     return Category.findAll({
