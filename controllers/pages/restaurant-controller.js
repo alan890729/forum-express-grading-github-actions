@@ -1,61 +1,9 @@
-const { Op } = require('sequelize')
 const { Restaurant, Category, Comment, User, Sequelize } = require('../../models')
-const pagination = require('../../helpers/pagination-helper')
+const restaurantServices = require('../../services/restaurant-services')
 
 const restaurantController = {
   getRestaurants: (req, res, next) => {
-    const DEFAULT_LIMIT = 9
-
-    const currentPage = +req.query.page || 1
-    const limit = +req.query.limit || DEFAULT_LIMIT
-    const offset = limit * (currentPage - 1)
-    let categoryId
-    let where
-
-    if (+req.query.categoryId) {
-      categoryId = +req.query.categoryId
-      where = { categoryId }
-    } else if (req.query.categoryId === 'noCategory') {
-      categoryId = 'noCategory'
-      where = {
-        categoryId: {
-          [Op.is]: null
-        }
-      }
-    } else {
-      categoryId = ''
-      where = {}
-    }
-
-    return Promise.all([
-      Restaurant.findAndCountAll({
-        where,
-        include: [
-          { model: Category }
-        ],
-        limit,
-        offset
-      }),
-      Category.findAll({ raw: true })
-    ])
-      .then(([restaurantsData, categories]) => {
-        const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(r => r.id) // I think using 'req.user &&...' is for testing purpose.
-        const likedRestaurantsId = req.user && req.user.likedRestaurants.map(r => r.id)
-
-        const restaurants = restaurantsData.rows
-          .map(r => r.toJSON())
-          .map(r => ({
-            ...r,
-            description: r.description.substring(0, 50),
-            isFavorited: favoritedRestaurantsId.includes(r.id),
-            isLiked: likedRestaurantsId.includes(r.id)
-          }))
-
-        const paginator = pagination.generatePaginatorForRender(restaurantsData.count, currentPage, limit)
-
-        return res.render('restaurants', { restaurants, categories, categoryId, paginator })
-      })
-      .catch(err => next(err))
+    return restaurantServices.getRestaurants(req, (err, data) => err ? next(err) : res.render('restaurants', data))
   },
   getRestaurant: (req, res, next) => {
     return Restaurant.findByPk(req.params.id, {
