@@ -14,26 +14,13 @@ const adminController = {
       .catch(err => next(err))
   },
   postRestaurant: (req, res, next) => {
-    const { name, tel, address, openingHours, description, categoryId } = req.body
-    if (!name) throw new Error('Restaurant name is required!')
+    return adminServices.postRestaurant(req, (err, data) => {
+      if (err) return next(err)
 
-    const { file } = req
-
-    localFileHandler(file)
-      .then(filePath => Restaurant.create({
-        name,
-        tel,
-        address,
-        openingHours,
-        description,
-        image: filePath || null,
-        categoryId
-      }))
-      .then(() => {
-        req.flash('success_messages', 'restaurant was successfully created')
-        res.redirect('/admin/restaurants')
-      })
-      .catch(err => next(err))
+      req.flash('success_messages', 'restaurant was successfully created')
+      req.session.createdData = data // 目前不知道這可以幹嘛，怎麼利用
+      return res.redirect('/admin/restaurants')
+    })
   },
   getRestaurant: (req, res, next) => {
     Restaurant.findByPk(req.params.id, {
@@ -95,7 +82,11 @@ const adminController = {
       .catch(err => next(err))
   },
   deleteRestaurant: (req, res, next) => {
-    return adminServices.deleteRestaurant(req, (err, data) => err ? next(err) : res.redirect('/admin/restaurants'))
+    return adminServices.deleteRestaurant(req, (err, data) => {
+      if (err) return next(err)
+      req.session.deletedData = data // 目前不知道這可以幹嘛，怎麼利用
+      return res.redirect('/admin/restaurants')
+    })
   },
   getUsers: (req, res, next) => {
     return User.findAll({

@@ -1,6 +1,7 @@
 const { Op } = require('sequelize')
 
 const { Restaurant, Category } = require('../models')
+const { localFileHandler } = require('../helpers/file-helpers')
 const pagination = require('../helpers/pagination-helper')
 
 const adminServices = {
@@ -62,6 +63,31 @@ const adminServices = {
         return restaurant.destroy()
       })
       .then(deletedRestaurant => cb(null, { restaurant: deletedRestaurant }))
+      .catch(err => cb(err))
+  },
+  postRestaurant: (req, cb) => {
+    const { name, tel, address, openingHours, description, categoryId } = req.body
+    if (!name) throw new Error('Restaurant name is required!')
+
+    const { file } = req
+
+    return Category.findByPk(categoryId)
+      .then(category => {
+        if (!category) throw new Error('Category doesn\'t exist!')
+        return localFileHandler(file)
+      })
+      .then(filePath => {
+        return Restaurant.create({
+          name,
+          tel,
+          address,
+          openingHours,
+          description,
+          image: filePath || null,
+          categoryId
+        })
+      })
+      .then(newRestaurant => cb(null, { restaurant: newRestaurant }))
       .catch(err => cb(err))
   }
 }
