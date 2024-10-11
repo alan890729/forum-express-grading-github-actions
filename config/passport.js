@@ -19,7 +19,7 @@ passport.use(new LocalStrategy(
         if (!isMatched) return cb(null, false, req.flash('error_messages', '帳號或密碼輸入錯誤！'))
         return cb(null, user)
       })
-    })
+    }).catch(err => cb(err))
   }
 ))
 
