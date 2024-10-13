@@ -89,6 +89,21 @@ const adminServices = {
       })
       .then(newRestaurant => cb(null, { restaurant: newRestaurant }))
       .catch(err => cb(err))
+  },
+  getRestaurant: (req, cb) => {
+    return Restaurant.findByPk(req.params.id, {
+      include: [
+        {
+          model: Category
+        }
+      ]
+    })
+      .then(restaurant => {
+        if (!restaurant) throw new Error('Restaurant didn\'t exist!')
+
+        return cb(null, { restaurant: restaurant.toJSON() })
+      })
+      .catch(err => cb(err))
   }
 }
 
