@@ -6,7 +6,7 @@
   <label class="form-label" for="categoryId">Category</label>
   {{#ifCond restaurant.categoryId null}}
   <select class="form-control" id="categoryId" name="categoryId">
-    <option value="" selected>(未分類)</option>
+    <option value="uncategorized" selected>(未分類)</option>
     {{#each categories}}
     <option value="{{this.id}}">{{this.name}}</option>
     {{/each}}

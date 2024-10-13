@@ -104,6 +104,37 @@ const adminServices = {
         return cb(null, { restaurant: restaurant.toJSON() })
       })
       .catch(err => cb(err))
+  },
+  putRestaurant: (req, cb) => {
+    const { name, tel, address, openingHours, description, categoryId } = req.body
+    const { file } = req
+
+    if (!name) throw new Error('Restaurant name is required!')
+
+    return Promise.all([
+      Restaurant.findByPk(req.params.id),
+      localFileHandler(file)
+    ])
+      .then(([restaurant, filePath]) => {
+        if (!restaurant) throw new Error('Restaurant didn\'t exist!')
+        if (restaurant.categoryId !== null && (categoryId === 'uncategorized' || categoryId === null)) {
+          throw new Error('The category of a restaurant can\'t manually set to null.')
+        }
+
+        return restaurant.update({
+          name,
+          tel,
+          address,
+          openingHours,
+          description,
+          image: filePath || restaurant.image,
+          categoryId: categoryId === 'uncategorized' || categoryId === null ? null : categoryId
+        })
+      })
+      .then(updatedRestaurant => {
+        return cb(null, { restaurant: updatedRestaurant })
+      })
+      .catch(err => cb(err))
   }
 }
 
