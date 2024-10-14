@@ -153,6 +153,20 @@ const adminServices = {
         return cb(null, { categories: createdCategory.toJSON() })
       })
       .catch(err => cb(err))
+  },
+  putCategory: (req, cb) => {
+    const name = req.body.name?.trim()
+    if (!name) throw new Error('A category name is required!')
+
+    return Category.findByPk(req.params.id)
+      .then(category => {
+        if (!category) throw new Error('Category didn\'t exist!')
+        return category.update({ name })
+      })
+      .then(updatedCategory => {
+        return cb(null, { category: updatedCategory.toJSON() })
+      })
+      .catch(err => cb(err))
   }
 }
 

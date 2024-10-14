@@ -22,20 +22,13 @@ const categoryController = {
     })
   },
   putCategory: (req, res, next) => {
-    const name = req.body.name.trim()
-    if (!name) throw new Error('Category name is required!')
+    return adminServices.putCategory(req, (err, data) => {
+      if (err) return next(err)
 
-    return Category.findByPk(req.params.id)
-      .then(category => {
-        if (!category) throw new Error('Category didn\'t exist!')
-
-        return category.update({ name })
-      })
-      .then(() => {
-        req.flash('success_messages', '編輯成功！')
-        return res.redirect('/admin/categories')
-      })
-      .catch(err => next(err))
+      // req.session.updatedCategory = data // 還不確定怎麼運用，先註解掉
+      req.flash('success_messages', '編輯成功！')
+      return res.redirect('/admin/categories')
+    })
   },
   deleteCategory: (req, res, next) => {
     return Category.findByPk(req.params.id)
