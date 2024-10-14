@@ -135,6 +135,14 @@ const adminServices = {
         return cb(null, { restaurant: updatedRestaurant })
       })
       .catch(err => cb(err))
+  },
+  getCategories: cb => {
+    return Category.findAll()
+      .then(categories => {
+        categories = categories.map(c => c.toJSON())
+        return cb(null, { categories })
+      })
+      .catch(err => cb(err))
   }
 }
 

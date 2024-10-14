@@ -15,6 +15,9 @@ const adminController = {
   },
   putRestaurant: (req, res, next) => {
     return adminServices.putRestaurant(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  getCategories: (req, res, next) => {
+    return adminServices.getCategories((err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 
