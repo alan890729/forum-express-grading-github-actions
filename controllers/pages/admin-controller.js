@@ -56,13 +56,12 @@ const adminController = {
     })
   },
   getUsers: (req, res, next) => {
-    return User.findAll({
-      raw: true
+    return adminServices.getUsers((err, data) => {
+      if (err) return next(err)
+
+      // req.session.users = data // 還不確定要怎麼利用就先不打開了
+      return res.render('admin/users', { users: data.users })
     })
-      .then(users => {
-        return res.render('admin/users', { users })
-      })
-      .catch(err => next(err))
   },
   patchUser: (req, res, next) => {
     return User.findByPk(req.params.id)

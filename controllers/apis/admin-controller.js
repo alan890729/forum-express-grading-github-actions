@@ -27,6 +27,9 @@ const adminController = {
   },
   deleteCategory: (req, res, next) => {
     return adminServices.deleteCategory(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  getUsers: (req, res, next) => {
+    return adminServices.getUsers((err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 

@@ -1,6 +1,6 @@
 const { Op } = require('sequelize')
 
-const { Restaurant, Category } = require('../models')
+const { Restaurant, Category, User } = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 const pagination = require('../helpers/pagination-helper')
 
@@ -176,6 +176,16 @@ const adminServices = {
       })
       .then(deletedCategory => {
         return cb(null, { category: deletedCategory.toJSON() })
+      })
+      .catch(err => cb(err))
+  },
+  getUsers: cb => {
+    return User.findAll({
+      attributes: ['id', 'name', 'email', 'isAdmin']
+    })
+      .then(users => {
+        users = users.map(u => u.toJSON())
+        return cb(null, { users })
       })
       .catch(err => cb(err))
   }
