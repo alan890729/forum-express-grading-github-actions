@@ -18,6 +18,9 @@ const adminController = {
   },
   getCategories: (req, res, next) => {
     return adminServices.getCategories((err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  postCategory: (req, res, next) => {
+    return adminServices.postCategory(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 

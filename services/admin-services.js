@@ -143,6 +143,16 @@ const adminServices = {
         return cb(null, { categories })
       })
       .catch(err => cb(err))
+  },
+  postCategory: (req, cb) => {
+    const name = req.body.name?.trim()
+    if (!name) throw new Error('A category name is required!')
+
+    return Category.create({ name })
+      .then(createdCategory => {
+        return cb(null, { categories: createdCategory.toJSON() })
+      })
+      .catch(err => cb(err))
   }
 }
 

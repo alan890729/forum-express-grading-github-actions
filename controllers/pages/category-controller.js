@@ -1,4 +1,5 @@
 const { Category } = require('../../models')
+const adminServices = require('../../services/admin-services')
 
 const categoryController = {
   getCategories: (req, res, next) => {
@@ -12,15 +13,13 @@ const categoryController = {
       .catch(err => next(err))
   },
   postCategory: (req, res, next) => {
-    const name = req.body.name.trim()
-    if (!name) throw new Error('Category name is required!')
+    return adminServices.postCategory(req, (err, data) => {
+      if (err) return next(err)
 
-    return Category.create({ name })
-      .then(() => {
-        req.flash('success_messages', '新增成功！')
-        return res.redirect('/admin/categories')
-      })
-      .catch(err => next(err))
+      // req.session.createdCategory = data // 還不確定怎麼運用，先註解掉
+      req.flash('success_messages', '新增成功！')
+      return res.redirect('/admin/categories')
+    })
   },
   putCategory: (req, res, next) => {
     const name = req.body.name.trim()
