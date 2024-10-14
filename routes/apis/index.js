@@ -11,7 +11,18 @@ const { apiErrorHandler } = require('../../middleware/error-handler')
 router.use('/admin', authenticated, adminAuthenticated, admin)
 router.get('/restaurants', authenticated, restController.getRestaurants)
 
-router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
+router.post(
+  '/signin',
+  (req, res, next) => {
+    return passport.authenticate('local', { session: false }, (err, user) => {
+      if (err) return next(err)
+      if (!user) return res.json({ status: 'error', message: 'wrong email or password!' })
+
+      req.user = user
+      return next()
+    })(req, res, next)
+  },
+  userController.signIn)
 router.post('/signup', userController.signUp)
 
 router.use('/', apiErrorHandler)
