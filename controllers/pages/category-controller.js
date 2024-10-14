@@ -31,17 +31,13 @@ const categoryController = {
     })
   },
   deleteCategory: (req, res, next) => {
-    return Category.findByPk(req.params.id)
-      .then(category => {
-        if (!category) throw new Error('Category didn\'t exist!')
+    return adminServices.deleteCategory(req, (err, data) => {
+      if (err) return next(err)
 
-        return category.destroy()
-      })
-      .then(() => {
-        req.flash('success_messages', '刪除成功！')
-        return res.redirect('/admin/categories')
-      })
-      .catch(err => next(err))
+      // req.session.deletedCategory = data // 還不確定怎麼運用，先註解掉
+      req.flash('success_messages', '刪除成功！')
+      return res.redirect('/admin/categories')
+    })
   }
 }
 

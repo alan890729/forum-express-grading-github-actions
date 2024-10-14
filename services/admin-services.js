@@ -167,6 +167,17 @@ const adminServices = {
         return cb(null, { category: updatedCategory.toJSON() })
       })
       .catch(err => cb(err))
+  },
+  deleteCategory: (req, cb) => {
+    return Category.findByPk(req.params.id)
+      .then(category => {
+        if (!category) throw new Error('Category didn\'t exist!')
+        return category.destroy()
+      })
+      .then(deletedCategory => {
+        return cb(null, { category: deletedCategory.toJSON() })
+      })
+      .catch(err => cb(err))
   }
 }
 
