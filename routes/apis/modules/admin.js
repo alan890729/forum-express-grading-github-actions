@@ -16,5 +16,6 @@ router.get('/categories', adminController.getCategories)
 router.post('/categories', adminController.postCategory)
 
 router.get('/users', adminController.getUsers)
+router.patch('/users/:id', adminController.patchUser)
 
 module.exports = router

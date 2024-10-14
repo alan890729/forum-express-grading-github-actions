@@ -30,6 +30,9 @@ const adminController = {
   },
   getUsers: (req, res, next) => {
     return adminServices.getUsers((err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  patchUser: (req, res, next) => {
+    return adminServices.patchUser(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 

@@ -188,6 +188,23 @@ const adminServices = {
         return cb(null, { users })
       })
       .catch(err => cb(err))
+  },
+  patchUser: (req, cb) => {
+    return User.findByPk(req.params.id, {
+      attributes: ['id', 'name', 'email', 'isAdmin']
+    })
+      .then(user => {
+        if (!user) throw new Error('User not found!')
+        if (user.email === 'root@example.com') throw new Error('禁止變更root權限!')
+
+        return user.update({
+          isAdmin: !user.isAdmin
+        })
+      })
+      .then(updatedUser => {
+        return cb(null, { user: updatedUser.toJSON() })
+      })
+      .catch(err => cb(err))
   }
 }
 
