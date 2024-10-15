@@ -9,7 +9,6 @@ const { authenticated, adminAuthenticated } = require('../../middleware/apiAuth'
 const { apiErrorHandler } = require('../../middleware/error-handler')
 
 router.use('/admin', authenticated, adminAuthenticated, admin)
-router.get('/restaurants', authenticated, restController.getRestaurants)
 
 router.post(
   '/signin',
@@ -24,6 +23,9 @@ router.post(
   },
   userController.signIn)
 router.post('/signup', userController.signUp)
+
+router.get('/restaurants/:id', authenticated, restController.getRestaurant)
+router.get('/restaurants', authenticated, restController.getRestaurants)
 
 router.use('/', apiErrorHandler)
 
