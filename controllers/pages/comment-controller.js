@@ -1,27 +1,15 @@
-const { Restaurant, User, Comment } = require('../../models')
+const { Comment } = require('../../models')
+const commentServices = require('../../services/comment-services')
 
 const commentController = {
   postComment: (req, res, next) => {
-    const userId = req.user.id
-    const { text, restaurantId } = req.body
-    if (!text.trim()) throw new Error('Comment text is required!')
+    return commentServices.postComment(req, (err, data) => {
+      if (err) return next(err)
 
-    return Promise.all([
-      User.findByPk(userId),
-      Restaurant.findByPk(restaurantId)
-    ])
-      .then(([user, restaurant]) => {
-        if (!user) throw new Error('User didn\'t exist!')
-        if (!restaurant) throw new Error('Restaurant didn\'t exist!')
-
-        return Comment.create({
-          text: text.trim(),
-          userId,
-          restaurantId
-        })
-      })
-      .then(() => res.redirect(`/restaurants/${restaurantId}`))
-      .catch(err => next(err))
+      req.session.createdComment = data
+      req.flash('success_messages', '評論新增成功!')
+      return res.redirect(`/restaurants/${+req.body.restaurantId}`)
+    })
   },
   deleteComment: (req, res, next) => {
     return Comment.findByPk(req.params.id)
