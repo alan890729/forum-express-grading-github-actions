@@ -30,17 +30,18 @@ const jwtOptions = {
 
 passport.use(new JwtStrategy(jwtOptions, (jwtPayload, cb) => {
   return User.findByPk(jwtPayload.id, {
+    attributes: { exclude: ['password'] },
     include: [
       { model: Restaurant, as: 'FavoritedRestaurants' },
       { model: Restaurant, as: 'likedRestaurants' },
-      { model: User, as: 'followers' },
-      { model: User, as: 'followings' },
+      { model: User, as: 'followers', attributes: { exclude: ['password'] } },
+      { model: User, as: 'followings', attributes: { exclude: ['password'] } },
       { model: Comment, include: [{ model: Restaurant }] }
     ]
   })
     .then(user => {
       if (!user) return cb(null, false)
-      return cb(null, user)
+      return cb(null, user.toJSON())
     })
     .catch(err => cb(err))
 }))

@@ -30,6 +30,8 @@ router.get('/restaurants', authenticated, restController.getRestaurants)
 
 router.post('/comments', authenticated, commentController.postComment)
 
+router.post('/favorites/:restaurantId', authenticated, userController.addFavorite)
+
 router.use('/', apiErrorHandler)
 
 module.exports = router

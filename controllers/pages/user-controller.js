@@ -150,33 +150,13 @@ const userController = {
       .catch(err => next(err))
   },
   addFavorite: (req, res, next) => {
-    const { restaurantId } = req.params
+    return userServices.addFavorite(req, (err, data) => {
+      if (err) return next(err)
 
-    return Promise.all([
-      Restaurant.findByPk(restaurantId, {
-        raw: true
-      }),
-      Favorite.findOne({
-        where: {
-          userId: req.user.id,
-          restaurantId
-        }
-      })
-    ])
-      .then(([restaurant, favorite]) => {
-        if (!restaurant) throw new Error('Restaurant didn\'t exist!')
-        if (favorite) throw new Error('You have favorited this restaurant!')
-
-        return Favorite.create({
-          userId: req.user.id,
-          restaurantId
-        })
-      })
-      .then(() => {
-        req.flash('success_messages', '已將餐廳加到您的喜愛清單！')
-        return res.redirect('back')
-      })
-      .catch(err => next(err))
+      // req.session.createdFavorite = data // 還不知道怎麼利用先註解
+      req.flash('success_messages', '已將餐廳加到您的喜愛清單！')
+      return res.redirect('back')
+    })
   },
   removeFavorite: (req, res, next) => {
     const { restaurantId } = req.params
