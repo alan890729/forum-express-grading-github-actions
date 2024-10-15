@@ -2,7 +2,7 @@ const db = require('../../models')
 const { localFileHandler } = require('../../helpers/file-helpers')
 const userServices = require('../../services/user-services')
 
-const { User, Comment, Restaurant, Favorite, Like, Followship } = db
+const { User, Comment, Restaurant, Followship } = db
 
 const userController = {
   signUpPage: (req, res) => {
@@ -159,70 +159,31 @@ const userController = {
     })
   },
   removeFavorite: (req, res, next) => {
-    const { restaurantId } = req.params
+    return userServices.removeFavorite(req, (err, data) => {
+      if (err) return next(err)
 
-    return Favorite.findOne({
-      where: {
-        userId: req.user.id,
-        restaurantId
-      }
+      // req.session.deletedFavorite = data // 還不知道怎麼利用先註解
+      req.flash('success_messages', '已將餐廳從您的喜愛清單移除！')
+      return res.redirect('back')
     })
-      .then(favorite => {
-        if (!favorite) throw new Error('You haven\'t favorited this restaurant!')
-
-        return favorite.destroy()
-      })
-      .then(() => {
-        req.flash('success_messages', '已將餐廳從您的喜愛清單移除！')
-        return res.redirect('back')
-      })
-      .catch(err => next(err))
   },
   addLike: (req, res, next) => {
-    const { restaurantId } = req.params
+    return userServices.addLike(req, (err, data) => {
+      if (err) return next(err)
 
-    return Promise.all([
-      Restaurant.findByPk(restaurantId),
-      Like.findOne({
-        where: {
-          userId: req.user.id,
-          restaurantId
-        }
-      })
-    ])
-      .then(([restaurant, like]) => {
-        if (!restaurant) throw new Error('Restaurant didn\'t exist!')
-        if (like) throw new Error('You have liked this restaurant!')
-
-        return Like.create({
-          userId: req.user.id,
-          restaurantId
-        })
-      })
-      .then(() => {
-        req.flash('success_messages', '已將餐廳加到您的Like!')
-        return res.redirect('back')
-      })
-      .catch(err => next(err))
+      // req.session.createdLike = data // 還不知道怎麼利用先註解
+      req.flash('success_messages', '已將餐廳加到您的Like!')
+      return res.redirect('back')
+    })
   },
   removeLike: (req, res, next) => {
-    const { restaurantId } = req.params
+    return userServices.removeLike(req, (err, data) => {
+      if (err) return next(err)
 
-    return Like.findOne({
-      where: {
-        userId: req.user.id,
-        restaurantId
-      }
+      // req.session.deletedLike = data // 還不知道怎麼利用先註解
+      req.flash('success_messages', '已將餐廳從您的Like移除!')
+      return res.redirect('back')
     })
-      .then(like => {
-        if (!like) throw new Error('You haven\'t liked this restaurant!')
-        return like.destroy()
-      })
-      .then(() => {
-        req.flash('success_messages', '已將餐廳從您的Like移除!')
-        return res.redirect('back')
-      })
-      .catch(err => next(err))
   },
   getTopUsers: (req, res, next) => {
     return User.findAll({

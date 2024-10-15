@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
 
-const { User, Restaurant, Favorite } = require('../models')
+const { User, Restaurant, Favorite, Like } = require('../models')
 
 const userServices = {
   signUp: (req, cb) => {
@@ -50,7 +50,79 @@ const userServices = {
         return Favorite.create({ restaurantId, userId })
       })
       .then(createdFavorite => {
-        return cb(null, { favorite: createdFavorite })
+        return cb(null, { favorite: createdFavorite.toJSON() })
+      })
+      .catch(err => cb(err))
+  },
+  removeFavorite: (req, cb) => {
+    const restaurantId = +req.params.restaurantId
+    const userId = req.user.id
+
+    if (restaurantId < 1 || !Number.isInteger(restaurantId)) throw new Error('restaurantId should be a positive integer!')
+
+    return Favorite.findOne({
+      where: {
+        restaurantId,
+        userId
+      }
+    })
+      .then(favorite => {
+        if (!favorite) throw new Error('You haven\'t favorited this restaurant!')
+
+        return favorite.destroy()
+      })
+      .then(deletedFavorite => {
+        return cb(null, { favorite: deletedFavorite.toJSON() })
+      })
+      .catch(err => cb(err))
+  },
+  addLike: (req, cb) => {
+    const restaurantId = +req.params.restaurantId
+    const userId = req.user.id
+
+    if (restaurantId < 1 || !Number.isInteger(restaurantId)) throw new Error('restaurantId should be a positive integer!')
+
+    return Promise.all([
+      Restaurant.findByPk(restaurantId),
+      User.findByPk(userId),
+      Like.findOne({
+        where: {
+          restaurantId,
+          userId
+        }
+      })
+    ])
+      .then(([restaurant, user, like]) => {
+        if (!restaurant) throw new Error('Restaurant didn\'t exist!')
+        if (!user) throw new Error('User didn\'t exist!')
+        if (like) throw new Error('You have liked this restaurant!')
+
+        return Like.create({ restaurantId, userId })
+      })
+      .then(createdLike => {
+        return cb(null, { like: createdLike.toJSON() })
+      })
+      .catch(err => cb(err))
+  },
+  removeLike: (req, cb) => {
+    const restaurantId = +req.params.restaurantId
+    const userId = req.user.id
+
+    if (restaurantId < 1 || !Number.isInteger(restaurantId)) throw new Error('restaurantId should be a positive integer!')
+
+    return Like.findOne({
+      where: {
+        restaurantId,
+        userId
+      }
+    })
+      .then(like => {
+        if (!like) throw new Error('You haven\'t liked this restaurant!')
+
+        return like.destroy()
+      })
+      .then(deletedLike => {
+        return cb(null, { like: deletedLike.toJSON() })
       })
       .catch(err => cb(err))
   }

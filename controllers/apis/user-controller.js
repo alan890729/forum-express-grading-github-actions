@@ -25,6 +25,15 @@ const userController = {
   },
   addFavorite: (req, res, next) => {
     return userServices.addFavorite(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  removeFavorite: (req, res, next) => {
+    return userServices.removeFavorite(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  addLike: (req, res, next) => {
+    return userServices.addLike(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  removeLike: (req, res, next) => {
+    return userServices.removeLike(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 

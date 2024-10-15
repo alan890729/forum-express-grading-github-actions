@@ -31,6 +31,10 @@ router.get('/restaurants', authenticated, restController.getRestaurants)
 router.post('/comments', authenticated, commentController.postComment)
 
 router.post('/favorites/:restaurantId', authenticated, userController.addFavorite)
+router.delete('/favorites/:restaurantId', authenticated, userController.removeFavorite)
+
+router.post('/like/:restaurantId', authenticated, userController.addLike)
+router.delete('/like/:restaurantId', authenticated, userController.removeLike)
 
 router.use('/', apiErrorHandler)
 
