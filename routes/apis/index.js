@@ -29,6 +29,7 @@ router.post('/signup', userController.signUp)
 router.get('/feeds/newest-restaurants', authenticated, feedController.getNewestRestaurants)
 router.get('/feeds/newest-comments', authenticated, feedController.getNewestComments)
 
+router.get('/restaurants/top', authenticated, restController.getTopRestaurants)
 router.get('/restaurants/:id', authenticated, restController.getRestaurant)
 router.get('/restaurants', authenticated, restController.getRestaurants)
 

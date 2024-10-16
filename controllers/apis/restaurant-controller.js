@@ -6,6 +6,9 @@ const restaurantController = {
   },
   getRestaurant: (req, res, next) => {
     return restaurantServices.getRestaurant(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  getTopRestaurants: (req, res, next) => {
+    return restaurantServices.getTopRestaurants(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 

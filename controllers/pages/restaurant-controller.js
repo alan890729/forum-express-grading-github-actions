@@ -1,4 +1,4 @@
-const { Restaurant, Category, Comment, User, Sequelize } = require('../../models')
+const { Restaurant, Category, Comment, Sequelize } = require('../../models')
 const feedServices = require('../../services/feed-services')
 const restaurantServices = require('../../services/restaurant-services')
 
@@ -41,66 +41,11 @@ const restaurantController = {
       .catch(err => next(err))
   },
   getTopRestaurants: (req, res, next) => {
-    // this one is faster but can't pass the test =_= .
-    // remember to inport sequelize from ../models, otherwise the sequelize.query won't work.
+    return restaurantServices.getTopRestaurants(req, (err, data) => {
+      if (err) return next(err)
 
-    // return sequelize.query(
-    //   `
-    //              SELECT Restaurants.id,
-    //                     Restaurants.name,
-    //                     Restaurants.tel,
-    //                     Restaurants.address,
-    //                     Restaurants.opening_hours,
-    //                     Restaurants.description,
-    //                     Restaurants.image,
-    //                     Restaurants.view_counts,
-    //                     Restaurants.created_at,
-    //                     Restaurants.updated_at,
-    //                     Restaurants.category_id,
-    //                     COUNT(Favorites.restaurant_id) AS favoritedCount
-    //                FROM Restaurants
-    //     LEFT OUTER JOIN Favorites
-    //                  ON Restaurants.id = Favorites.restaurant_id
-    //            GROUP BY Restaurants.id
-    //            ORDER BY favoritedCount DESC
-    //               LIMIT 10;
-    //   `
-    // )
-    //   .then(([restaurants, metadata]) => {
-    //     const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(fr => fr.id)
-
-    //     restaurants = restaurants
-    //       .map(r => ({
-    //         ...r,
-    //         description: r.description.slice(0, 50),
-    //         isFavorited: req.user && favoritedRestaurantsId.some(frId => frId === r.id)
-    //       }))
-
-    //     return res.render('top-restaurants', { restaurants })
-    //   })
-    //   .catch(err => next(err))
-
-    return Restaurant.findAll({
-      include: [
-        { model: User, as: 'FavoritedUsers' }
-      ]
+      return res.render('top-restaurants', data)
     })
-      .then(restaurants => {
-        const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(fr => fr.id)
-
-        restaurants = restaurants
-          .map(r => ({
-            ...r.toJSON(),
-            description: r.description.slice(0, 50),
-            favoritedCount: r.FavoritedUsers.length,
-            isFavorited: req.user && favoritedRestaurantsId.some(frId => frId === r.id)
-          }))
-          .sort((a, b) => b.favoritedCount - a.favoritedCount)
-          .slice(0, 10)
-
-        return res.render('top-restaurants', { restaurants })
-      })
-      .catch(err => next(err))
   }
 }
 
