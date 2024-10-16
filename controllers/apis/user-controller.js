@@ -34,6 +34,9 @@ const userController = {
   },
   removeLike: (req, res, next) => {
     return userServices.removeLike(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  putUser: (req, res, next) => {
+    return userServices.putUser(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 

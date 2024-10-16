@@ -9,6 +9,7 @@ const commentController = require('../../controllers/apis/comment-controller')
 const feedController = require('../../controllers/apis/feed-controller')
 const { authenticated, adminAuthenticated } = require('../../middleware/apiAuth')
 const { apiErrorHandler } = require('../../middleware/error-handler')
+const upload = require('../../middleware/multer')
 
 router.use('/admin', authenticated, adminAuthenticated, admin)
 
@@ -25,6 +26,8 @@ router.post(
   },
   userController.signIn)
 router.post('/signup', userController.signUp)
+
+router.put('/users/:id', authenticated, upload.single('image'), userController.putUser)
 
 router.get('/feeds/newest-restaurants', authenticated, feedController.getNewestRestaurants)
 router.get('/feeds/newest-comments', authenticated, feedController.getNewestComments)

@@ -1,5 +1,4 @@
 const db = require('../../models')
-const { localFileHandler } = require('../../helpers/file-helpers')
 const userServices = require('../../services/user-services')
 
 const { User, Comment, Restaurant, Followship } = db
@@ -120,34 +119,13 @@ const userController = {
       .catch(err => next(err))
   },
   putUser: (req, res, next) => {
-    const { name } = req.body
-    const { file } = req
-    const userId = +req.params.id
-    if (!name) throw new Error('Name is required!')
+    return userServices.putUser(req, (err, data) => {
+      if (err) return next(err)
 
-    // putUser的測試不會顯示req.user為undefined之類的錯誤，所以可以用req.user.id這個東西去判斷'修改對象'和'修改者'是不是同一個人
-    if (userId !== req.user.id) {
-      req.flash('error_messages', 'User didn\'t exist!')
+      // req.session.updatedUser = data // 還沒有利用到先註解
+      req.flash('success_messages', '使用者資料編輯成功')
       return res.redirect(`/users/${req.user.id}`)
-    }
-
-    return Promise.all([
-      User.findByPk(userId),
-      localFileHandler(file)
-    ])
-      .then(([user, filePath]) => {
-        if (!user) throw new Error('User didn\'t exist!')
-
-        return user.update({
-          name,
-          image: filePath || user.image
-        })
-      })
-      .then(() => {
-        req.flash('success_messages', '使用者資料編輯成功')
-        return res.redirect(`/users/${userId}`)
-      })
-      .catch(err => next(err))
+    })
   },
   addFavorite: (req, res, next) => {
     return userServices.addFavorite(req, (err, data) => {

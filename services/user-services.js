@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs')
 
 const { User, Restaurant, Favorite, Like } = require('../models')
+const { localFileHandler } = require('../helpers/file-helpers')
 
 const userServices = {
   signUp: (req, cb) => {
@@ -123,6 +124,35 @@ const userServices = {
       })
       .then(deletedLike => {
         return cb(null, { like: deletedLike.toJSON() })
+      })
+      .catch(err => cb(err))
+  },
+  putUser: (req, cb) => {
+    const targetUserId = +req.params.id
+    const currentUserId = req.user.id
+    const name = req.body.name?.trim()
+
+    if (targetUserId < 1 || !Number.isInteger(targetUserId)) throw new Error('The userId of the edit user must be a positive integer!')
+    if (targetUserId !== currentUserId) throw new Error('You can only edit your own personal info!')
+    if (!name) throw new Error('A user name is required!')
+
+    return Promise.all([
+      User.findByPk(targetUserId),
+      localFileHandler(req.file)
+    ])
+      .then(([user, filePath]) => {
+        if (!user) throw new Error('User didn\'t exist!')
+
+        return user.update({
+          name,
+          image: filePath || user.image
+        })
+      })
+      .then(updatedUser => {
+        const user = updatedUser.toJSON()
+        delete user.password
+
+        return cb(null, { user })
       })
       .catch(err => cb(err))
   }
