@@ -1,4 +1,5 @@
 const { Restaurant, Category, Comment, User, Sequelize } = require('../../models')
+const feedServices = require('../../services/feed-services')
 const restaurantServices = require('../../services/restaurant-services')
 
 const restaurantController = {
@@ -31,23 +32,10 @@ const restaurantController = {
   },
   getFeeds: (req, res, next) => {
     return Promise.all([
-      Restaurant.findAll({
-        include: [{ model: Category }],
-        order: [['createdAt', 'DESC']],
-        limit: 10
-      }),
-      Comment.findAll({
-        include: [
-          { model: Restaurant },
-          { model: User }
-        ],
-        order: [['createdAt', 'DESC']],
-        limit: 10
-      })
+      feedServices.getNewestRestaurants(),
+      feedServices.getNewestComments()
     ])
-      .then(([restaurantsData, commentsData]) => {
-        const restaurants = restaurantsData.map(restaurant => restaurant.toJSON())
-        const comments = commentsData.map(comment => comment.toJSON())
+      .then(([restaurants, comments]) => {
         return res.render('feeds', { restaurants, comments })
       })
       .catch(err => next(err))

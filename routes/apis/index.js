@@ -6,6 +6,7 @@ const admin = require('./modules/admin')
 const restController = require('../../controllers/apis/restaurant-controller')
 const userController = require('../../controllers/apis/user-controller')
 const commentController = require('../../controllers/apis/comment-controller')
+const feedController = require('../../controllers/apis/feed-controller')
 const { authenticated, adminAuthenticated } = require('../../middleware/apiAuth')
 const { apiErrorHandler } = require('../../middleware/error-handler')
 
@@ -24,6 +25,9 @@ router.post(
   },
   userController.signIn)
 router.post('/signup', userController.signUp)
+
+router.get('/feeds/newest-restaurants', authenticated, feedController.getNewestRestaurants)
+router.get('/feeds/newest-comments', authenticated, feedController.getNewestComments)
 
 router.get('/restaurants/:id', authenticated, restController.getRestaurant)
 router.get('/restaurants', authenticated, restController.getRestaurants)
