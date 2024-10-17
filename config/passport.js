@@ -52,11 +52,12 @@ passport.serializeUser((user, cb) => {
 
 passport.deserializeUser((id, cb) => {
   return User.findByPk(id, {
+    attributes: { exclude: ['password'] },
     include: [
       { model: Restaurant, as: 'FavoritedRestaurants' },
       { model: Restaurant, as: 'likedRestaurants' },
-      { model: User, as: 'followers' },
-      { model: User, as: 'followings' },
+      { model: User, as: 'followers', attributes: { exclude: ['password'] } },
+      { model: User, as: 'followings', attributes: { exclude: ['password'] } },
       { model: Comment, include: [{ model: Restaurant }] }
     ]
   })

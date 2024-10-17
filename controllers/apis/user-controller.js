@@ -37,6 +37,18 @@ const userController = {
   },
   putUser: (req, res, next) => {
     return userServices.putUser(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  getUserComments: (req, res, next) => {
+    return userServices.getUserComments(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  getUserFavorites: (req, res, next) => {
+    return userServices.getUserFavorites(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  getUserFollowings: (req, res, next) => {
+    return userServices.getUserFollowings(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  getUserFollowers: (req, res, next) => {
+    return userServices.getUserFollowers(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 

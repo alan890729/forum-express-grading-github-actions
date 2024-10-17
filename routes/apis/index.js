@@ -27,6 +27,10 @@ router.post(
   userController.signIn)
 router.post('/signup', userController.signUp)
 
+router.get('/users/:id/comments', authenticated, userController.getUserComments)
+router.get('/users/:id/favorites', authenticated, userController.getUserFavorites)
+router.get('/users/:id/followings', authenticated, userController.getUserFollowings)
+router.get('/users/:id/followers', authenticated, userController.getUserFollowers)
 router.put('/users/:id', authenticated, upload.single('image'), userController.putUser)
 
 router.get('/feeds/newest-restaurants', authenticated, feedController.getNewestRestaurants)

@@ -56,38 +56,25 @@ const userController = {
         return next(err)
       }
     } else {
-      return User.findByPk(userId, {
-        include: [
-          {
-            model: Comment,
-            include: [{ model: Restaurant }]
-          },
-          {
-            model: User,
-            as: 'followings'
-          },
-          {
-            model: User,
-            as: 'followers'
-          },
-          {
-            model: Restaurant,
-            as: 'FavoritedRestaurants'
-          }
+      return userServices.getUser(
+        req,
+        [
+          { model: Comment, include: [{ model: Restaurant }] },
+          { model: User, as: 'followings', attributes: { exclude: ['password'] } },
+          { model: User, as: 'followers', attributes: { exclude: ['password'] } },
+          { model: Restaurant, as: 'FavoritedRestaurants' }
         ]
-      })
+      )
         .then(userData => {
-          if (!userData) throw new Error('User didn\'t exist!')
-
           const comments = []
           userData.Comments.forEach(comment => {
             if (!comments.some(c => c.restaurantId === comment.restaurantId)) {
-              comments.push(comment.toJSON())
+              comments.push(comment)
             }
           })
 
           const targetUser = {
-            ...userData.toJSON(),
+            ...userData,
             Comments: comments,
             commentsCount: comments.length,
             followingsCount: userData.followings.length,

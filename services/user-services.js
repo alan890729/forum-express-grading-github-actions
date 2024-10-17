@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
 
-const { User, Restaurant, Favorite, Like } = require('../models')
+const { User, Restaurant, Favorite, Like, Comment } = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const userServices = {
@@ -154,6 +154,46 @@ const userServices = {
 
         return cb(null, { user })
       })
+      .catch(err => cb(err))
+  },
+  getUser: (req, sequelizeIncludeArray, cb) => {
+    const targetUserId = +req.params.id
+
+    if (targetUserId < 1 || !Number.isInteger(targetUserId)) throw new Error('User id must be a positive integer!')
+
+    return User.findByPk(targetUserId, {
+      attributes: { exclude: ['password'] },
+      include: sequelizeIncludeArray
+    })
+      .then(user => {
+        if (!user) throw new Error('User didn\'t exist!')
+
+        if (!cb) return user.toJSON()
+        return cb(null, { user: user.toJSON() })
+      })
+      .catch(err => {
+        if (!cb) throw err
+        return cb(err)
+      })
+  },
+  getUserComments: (req, cb) => {
+    return userServices.getUser(req, [{ model: Comment, include: [{ model: Restaurant }] }])
+      .then(user => cb(null, { user }))
+      .catch(err => cb(err))
+  },
+  getUserFavorites: (req, cb) => {
+    return userServices.getUser(req, [{ model: Restaurant, as: 'FavoritedRestaurants' }])
+      .then(user => cb(null, { user }))
+      .catch(err => cb(err))
+  },
+  getUserFollowings: (req, cb) => {
+    return userServices.getUser(req, [{ model: User, as: 'followings', attributes: { exclude: ['password'] } }])
+      .then(user => cb(null, { user }))
+      .catch(err => cb(err))
+  },
+  getUserFollowers: (req, cb) => {
+    return userServices.getUser(req, [{ model: User, as: 'followers', attributes: { exclude: ['password'] } }])
+      .then(user => cb(null, { user }))
       .catch(err => cb(err))
   }
 }
