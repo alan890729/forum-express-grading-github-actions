@@ -1,7 +1,7 @@
 const db = require('../../models')
 const userServices = require('../../services/user-services')
 
-const { User, Comment, Restaurant, Followship } = db
+const { User, Comment, Restaurant } = db
 
 const userController = {
   signUpPage: (req, res) => {
@@ -169,50 +169,22 @@ const userController = {
       .catch(err => next(err))
   },
   addFollowing: (req, res, next) => {
-    const { userId } = req.params
-    const currentUser = req.user.id
-    if (+userId === currentUser) throw new Error('You can\'t follow yourself!')
+    return userServices.addFollowing(req, (err, data) => {
+      if (err) return next(err)
 
-    return Promise.all([
-      User.findByPk(userId),
-      Followship.findOne({
-        where: {
-          followerId: req.user.id,
-          followingId: userId
-        }
-      })
-    ])
-      .then(([user, followship]) => {
-        if (!user) throw new Error('User didn\'t exist!')
-        if (followship) throw new Error('You are already following this user!')
-
-        return Followship.create({
-          followerId: req.user.id,
-          followingId: userId
-        })
-      })
-      .then(() => {
-        req.flash('success_messages', '成功追蹤該使用者!')
-        return res.redirect('back')
-      })
-      .catch(err => next(err))
+      // req.session.createdFollowship = data // 還不會利用先註解
+      req.flash('success_messages', '成功追蹤該使用者!')
+      return res.redirect('back')
+    })
   },
   removeFollowing: (req, res, next) => {
-    return Followship.findOne({
-      where: {
-        followerId: req.user.id,
-        followingId: req.params.userId
-      }
+    return userServices.removeFollowing(req, (err, data) => {
+      if (err) return next(err)
+
+      // req.session.deletedFollowship = data // 還不會利用先註解
+      req.flash('success_messages', '成功取消追蹤該使用者!')
+      return res.redirect('back')
     })
-      .then(followship => {
-        if (!followship) throw new Error('You haven\'t followed this user!')
-        return followship.destroy()
-      })
-      .then(() => {
-        req.flash('success_messages', '成功取消追蹤該使用者!')
-        return res.redirect('back')
-      })
-      .catch(err => next(err))
   }
 }
 

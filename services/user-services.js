@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs')
 
-const { User, Restaurant, Favorite, Like, Comment } = require('../models')
+const { User, Restaurant, Favorite, Like, Comment, Followship } = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const userServices = {
@@ -194,6 +194,49 @@ const userServices = {
   getUserFollowers: (req, cb) => {
     return userServices.getUser(req, [{ model: User, as: 'followers', attributes: { exclude: ['password'] } }])
       .then(user => cb(null, { user }))
+      .catch(err => cb(err))
+  },
+  addFollowing: (req, cb) => {
+    const followingId = +req.params.userId
+    const followerId = req.user.id
+
+    if (followingId < 1 || !Number.isInteger(followingId)) throw new Error('The userId of the user you want to follow must be a positive integer!')
+    if (followerId === followingId) throw new Error('You can\'t follow/unfollow yourself!')
+
+    return Promise.all([
+      User.findByPk(followingId),
+      Followship.findOne({
+        where: { followerId, followingId }
+      })
+    ])
+      .then(([user, followship]) => {
+        if (!user) throw new Error('The user you want to follow didn\'t exist!')
+        if (followship) throw new Error('You are already following this user!')
+
+        return Followship.create({ followerId, followingId })
+      })
+      .then(createdFollowship => {
+        return cb(null, { followship: createdFollowship.toJSON() })
+      })
+      .catch(err => cb(err))
+  },
+  removeFollowing: (req, cb) => {
+    const followingId = +req.params.userId
+    const followerId = req.user.id
+
+    if (followingId < 1 || !Number.isInteger(followingId)) throw new Error('The userId of the user you want to unfollow must be a positive integer!')
+    if (followerId === followingId) throw new Error('You can\'t follow/unfollow yourself!')
+
+    return Followship.findOne({
+      where: { followerId, followingId }
+    })
+      .then(followship => {
+        if (!followship) throw new Error('You aren\'t following the user!')
+        return followship.destroy()
+      })
+      .then(deletedFollowship => {
+        return cb(null, { followship: deletedFollowship.toJSON() })
+      })
       .catch(err => cb(err))
   }
 }

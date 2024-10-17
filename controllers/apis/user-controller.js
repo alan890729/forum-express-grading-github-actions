@@ -49,6 +49,12 @@ const userController = {
   },
   getUserFollowers: (req, res, next) => {
     return userServices.getUserFollowers(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  addFollowing: (req, res, next) => {
+    return userServices.addFollowing(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+  removeFollowing: (req, res, next) => {
+    return userServices.removeFollowing(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 
