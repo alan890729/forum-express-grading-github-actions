@@ -16,8 +16,8 @@ const adminServices = {
     if (+req.query.categoryId) {
       categoryId = +req.query.categoryId
       where = { categoryId }
-    } else if (req.query.categoryId === 'noCategory') {
-      categoryId = 'noCategory'
+    } else if (req.query.categoryId === 'uncategorized') {
+      categoryId = 'uncategorized'
       where = {
         categoryId: {
           [Op.is]: null
